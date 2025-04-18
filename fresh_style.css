@@ -193,6 +193,10 @@ footer {
     justify-content: center;
     position: relative;
     overflow: hidden;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--spacing-md);
 }
 
 .paper-footer::before {
