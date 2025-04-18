@@ -267,130 +267,133 @@
             </main>
 
             <footer class="paper-footer">
-                <p>论文总结 &copy; <span id="current-year">2025</span> | 基于 "Let's Verify Step by Step" 论文</p>
-                <p class="summary-date">总结完成日期: 2025年4月18日</p>
+                <div class="footer-content">
+                    <p>论文总结 &copy; <span id="current-year">2025</span></p>
+                    <p>基于 "Let's Verify Step by Step" 论文</p>
+                    <p class="summary-date">总结完成日期: 2025年4月18日</p>
+                </div>
                 <script>
                     document.getElementById('current-year').textContent = new Date().getFullYear();
                 </script>
             </footer>
-        </div>
 
-        <!-- 添加音频处理脚本 -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // 存储所有音频元素
-                const audioElements = {};
-                let currentlyPlaying = null;
+            <!-- 添加音频处理脚本 -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // 存储所有音频元素
+                    const audioElements = {};
+                    let currentlyPlaying = null;
 
-                // 初始化音频元素
-                document.querySelectorAll('.audio-btn').forEach(button => {
-                    const audioUrl = button.getAttribute('data-audio');
-                    const sectionId = button.getAttribute('data-section');
+                    // 初始化音频元素
+                    document.querySelectorAll('.audio-btn').forEach(button => {
+                        const audioUrl = button.getAttribute('data-audio');
+                        const sectionId = button.getAttribute('data-section');
 
-                    // 创建音频元素但不显示
-                    const audio = new Audio(audioUrl);
-                    audioElements[sectionId] = {
-                        audio: audio,
-                        button: button,
-                        nextSection: button.getAttribute('data-next')
-                    };
+                        // 创建音频元素但不显示
+                        const audio = new Audio(audioUrl);
+                        audioElements[sectionId] = {
+                            audio: audio,
+                            button: button,
+                            nextSection: button.getAttribute('data-next')
+                        };
 
-                    // 设置播放完成后跳转到下一节
-                    audio.addEventListener('ended', function() {
-                        const nextSectionId = audioElements[sectionId].nextSection;
-                        resetButton(button);
-                        currentlyPlaying = null;
-
-                        if (nextSectionId) {
-                            // 滚动到下一个章节
-                            const nextSection = document.getElementById(nextSectionId);
-                            if (nextSection) {
-                                nextSection.scrollIntoView({ behavior: 'smooth' });
-
-                                // 可选: 自动播放下一个章节的音频
-                                // setTimeout(() => {
-                                //     const nextButton = document.querySelector(`button[data-section="${nextSectionId}"]`);
-                                //     if (nextButton) nextButton.click();
-                                // }, 1000);
-                            }
-                        }
-                    });
-
-                    // 按钮点击处理
-                    button.addEventListener('click', function() {
-                        const sectionId = this.getAttribute('data-section');
-
-                        // 如果有其他正在播放的音频，停止它
-                        if (currentlyPlaying && currentlyPlaying !== sectionId) {
-                            audioElements[currentlyPlaying].audio.pause();
-                            resetButton(audioElements[currentlyPlaying].button);
-                        }
-
-                        const audio = audioElements[sectionId].audio;
-
-                        if (audio.paused) {
-                            // 播放音频
-                            audio.play();
-                            currentlyPlaying = sectionId;
-
-                            // 更改按钮状态为暂停
-                            this.innerHTML = '<div class="pause-icon"><span></span><span></span></div>';
-                        } else {
-                            // 暂停音频
-                            audio.pause();
-                            resetButton(this);
+                        // 设置播放完成后跳转到下一节
+                        audio.addEventListener('ended', function() {
+                            const nextSectionId = audioElements[sectionId].nextSection;
+                            resetButton(button);
                             currentlyPlaying = null;
-                        }
+
+                            if (nextSectionId) {
+                                // 滚动到下一个章节
+                                const nextSection = document.getElementById(nextSectionId);
+                                if (nextSection) {
+                                    nextSection.scrollIntoView({ behavior: 'smooth' });
+
+                                    // 可选: 自动播放下一个章节的音频
+                                    // setTimeout(() => {
+                                    //     const nextButton = document.querySelector(`button[data-section="${nextSectionId}"]`);
+                                    //     if (nextButton) nextButton.click();
+                                    // }, 1000);
+                                }
+                            }
+                        });
+
+                        // 按钮点击处理
+                        button.addEventListener('click', function() {
+                            const sectionId = this.getAttribute('data-section');
+
+                            // 如果有其他正在播放的音频，停止它
+                            if (currentlyPlaying && currentlyPlaying !== sectionId) {
+                                audioElements[currentlyPlaying].audio.pause();
+                                resetButton(audioElements[currentlyPlaying].button);
+                            }
+
+                            const audio = audioElements[sectionId].audio;
+
+                            if (audio.paused) {
+                                // 播放音频
+                                audio.play();
+                                currentlyPlaying = sectionId;
+
+                                // 更改按钮状态为暂停
+                                this.innerHTML = '<div class="pause-icon"><span></span><span></span></div>';
+                            } else {
+                                // 暂停音频
+                                audio.pause();
+                                resetButton(this);
+                                currentlyPlaying = null;
+                            }
+                        });
                     });
+
+                    // 重置按钮到播放状态
+                    function resetButton(button) {
+                        button.innerHTML = '<div class="play-icon"></div>';
+                    }
+
+                    // 高亮当前正在查看的章节
+                    function highlightCurrentSection() {
+                        const sections = document.querySelectorAll('.paper-section');
+                        const navLinks = document.querySelectorAll('.toc-list a');
+
+                        // 找出当前在视口中最突出的章节
+                        let currentSectionId = '';
+                        let maxVisibility = 0;
+
+                        sections.forEach(section => {
+                            const rect = section.getBoundingClientRect();
+                            const sectionHeight = rect.height;
+                            const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+                            const visibility = visibleHeight > 0 ? visibleHeight / sectionHeight : 0;
+
+                            if (visibility > maxVisibility) {
+                                maxVisibility = visibility;
+                                currentSectionId = section.id;
+                            }
+                        });
+
+                        // 更新导航链接样式
+                        navLinks.forEach(link => {
+                            const href = link.getAttribute('href').substring(1); // 去掉开头的 #
+
+                            if (href === currentSectionId) {
+                                link.style.color = 'var(--primary-color)';
+                                link.parentElement.style.borderLeftColor = 'var(--primary-color)';
+                            } else {
+                                link.style.color = 'var(--light-text)';
+                                link.parentElement.style.borderLeftColor = 'transparent';
+                            }
+                        });
+                    }
+
+                    // 监听滚动事件以高亮当前章节
+                    window.addEventListener('scroll', highlightCurrentSection);
+
+                    // 初始高亮
+                    highlightCurrentSection();
                 });
-
-                // 重置按钮到播放状态
-                function resetButton(button) {
-                    button.innerHTML = '<div class="play-icon"></div>';
-                }
-
-                // 高亮当前正在查看的章节
-                function highlightCurrentSection() {
-                    const sections = document.querySelectorAll('.paper-section');
-                    const navLinks = document.querySelectorAll('.toc-list a');
-
-                    // 找出当前在视口中最突出的章节
-                    let currentSectionId = '';
-                    let maxVisibility = 0;
-
-                    sections.forEach(section => {
-                        const rect = section.getBoundingClientRect();
-                        const sectionHeight = rect.height;
-                        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-                        const visibility = visibleHeight > 0 ? visibleHeight / sectionHeight : 0;
-
-                        if (visibility > maxVisibility) {
-                            maxVisibility = visibility;
-                            currentSectionId = section.id;
-                        }
-                    });
-
-                    // 更新导航链接样式
-                    navLinks.forEach(link => {
-                        const href = link.getAttribute('href').substring(1); // 去掉开头的 #
-
-                        if (href === currentSectionId) {
-                            link.style.color = 'var(--primary-color)';
-                            link.parentElement.style.borderLeftColor = 'var(--primary-color)';
-                        } else {
-                            link.style.color = 'var(--light-text)';
-                            link.parentElement.style.borderLeftColor = 'transparent';
-                        }
-                    });
-                }
-
-                // 监听滚动事件以高亮当前章节
-                window.addEventListener('scroll', highlightCurrentSection);
-
-                // 初始高亮
-                highlightCurrentSection();
-            });
-        </script>
+            </script>
+        </div>
     </div>
 </body>
 </html>
